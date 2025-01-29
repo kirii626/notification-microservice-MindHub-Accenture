@@ -1,28 +1,48 @@
 package com.midhub.notification_microservice.listeners;
 
-import com.midhub.notification_microservice.events.UserRegisteredEvent;
-import com.midhub.notification_microservice.services.EmailService;
+import com.midhub.notification_microservice.events.UserDtoOutput;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class UserRegisteredListener {
 
-    @Autowired
-    private EmailService emailService;
+    private final JavaMailSender mailSender;
 
-    @RabbitListener(queues = "${rabbitmq.queues.user}")
-    public void handleUserRegisteredEvent(UserRegisteredEvent event) {
-        try {
-            String to = event.getEmail();
-            String subject = "Bienvenido a nuestra plataforma";
-            String text = "Hola " + event.getUsername() + ",\n\nGracias por registrarte.";
+    public UserRegisteredListener(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
-            emailService.sendEmail(to, subject, text);
-        } catch (Exception e) {
-            System.err.println("Error al enviar correo: " + e.getMessage());
-            e.printStackTrace();
+    @RabbitListener(queues = "${rabbitmq.queue.user}")
+    public void handleUserRegisteredEvent(UserDtoOutput user) {
+        if (user == null || user.getEmail() == null) {
+            System.out.println("❌ Evento recibido sin datos válidos, descartado.");
+            return;
         }
+
+        System.out.println("✅ Recibido evento de usuario registrado: " + user.getEmail());
+
+        try {
+            sendWelcomeEmail(user.getEmail(), user.getUsername());
+        } catch (MessagingException e) {
+            System.err.println("❌ Error enviando correo: " + e.getMessage());
+        }
+    }
+
+    private void sendWelcomeEmail(String email, String name) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(email);
+        helper.setSubject("¡Bienvenido a nuestro servicio!");
+        helper.setText("<h1>Hola " + name + "!</h1><p>Gracias por registrarte.</p>", true);
+
+        mailSender.send(message);
+
+        System.out.println("Correo enviado a: " + email);
     }
 }

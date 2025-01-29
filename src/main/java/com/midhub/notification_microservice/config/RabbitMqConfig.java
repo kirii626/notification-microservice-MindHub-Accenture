@@ -14,49 +14,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfig {
 
-    @Value("${rabbitmq.exchange}")
-    private String exchange;
-
-    @Value("${rabbitmq.user.registered.routing-key}")
-    private String userRegisteredRoutingKey;
-
-    @Value("${rabbitmq.pdf.generated.routing-key}")
-    private String pdfGeneratedRoutingKey;
-
-    @Value("${rabbitmq.queues.user}")
-    private String userQueue;
-
-    @Value("${rabbitmq.queues.pdf}")
-    private String pdfQueue;
-
-    // Declarar la cola para usuarios registrados
     @Bean
-    public Queue userRegisteredQueue() {
-        return new Queue(userQueue, true);
+    public TopicExchange topicExchange() {
+        return new TopicExchange("notification.exchange");
     }
 
-    // Declarar la cola para generación de PDFs de órdenes
     @Bean
-    public Queue orderPdfQueue() {
-        return new Queue(pdfQueue, true);
+    public Queue userQueue() {
+        return new Queue("notification.user.queue");
     }
 
-    // Declarar un exchange común
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(exchange);
-    }
-
-    // Binding para la cola de usuarios registrados
-    @Bean
-    public Binding userRegisteredBinding(Queue userRegisteredQueue, TopicExchange exchange) {
-        return BindingBuilder.bind(userRegisteredQueue).to(exchange).with(userRegisteredRoutingKey);
-    }
-
-    // Binding para la cola de generación de PDFs
-    @Bean
-    public Binding orderPdfBinding(Queue orderPdfQueue, TopicExchange exchange) {
-        return BindingBuilder.bind(orderPdfQueue).to(exchange).with(pdfGeneratedRoutingKey);
+    public Binding bindingUserQueue(Queue userQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(userQueue).to(topicExchange).with("notification.user.registered");
     }
 
     @Bean
