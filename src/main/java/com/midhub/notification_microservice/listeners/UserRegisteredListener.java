@@ -20,16 +20,16 @@ public class UserRegisteredListener {
     @RabbitListener(queues = "${rabbitmq.queue.user}")
     public void handleUserRegisteredEvent(UserDtoOutput user) {
         if (user == null || user.getEmail() == null) {
-            System.out.println("❌ Evento recibido sin datos válidos, descartado.");
+            System.out.println("Event received with invalid data, discarded");
             return;
         }
 
-        System.out.println("✅ Recibido evento de usuario registrado: " + user.getEmail());
+        System.out.println("User's registered event received: " + user.getEmail());
 
         try {
             sendWelcomeEmail(user.getEmail(), user.getUsername());
         } catch (MessagingException e) {
-            System.err.println("❌ Error enviando correo: " + e.getMessage());
+            System.err.println("ERROR sending email" + e.getMessage());
         }
     }
 
@@ -38,11 +38,11 @@ public class UserRegisteredListener {
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
         helper.setTo(email);
-        helper.setSubject("¡Bienvenido a nuestro servicio!");
-        helper.setText("<h1>Hola " + name + "!</h1><p>Gracias por registrarte.</p>", true);
+        helper.setSubject("Welcome to our service! :)))");
+        helper.setText("<h1>Hi " + name + "!</h1><p>Thank you for registering :D. We are very happy to see you here.</p>", true);
 
         mailSender.send(message);
 
-        System.out.println("Correo enviado a: " + email);
+        System.out.println("Email sent to: " + email);
     }
 }

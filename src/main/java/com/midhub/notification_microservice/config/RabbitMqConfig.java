@@ -25,8 +25,18 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Queue orderQueue() {
+        return new Queue("notification.order.queue");
+    }
+
+    @Bean
     public Binding bindingUserQueue(Queue userQueue, TopicExchange topicExchange) {
         return BindingBuilder.bind(userQueue).to(topicExchange).with("notification.user.registered");
+    }
+
+    @Bean
+    public Binding bindingOrderQueue(Queue orderQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(orderQueue).to(topicExchange).with("notification.order.created");
     }
 
     @Bean
