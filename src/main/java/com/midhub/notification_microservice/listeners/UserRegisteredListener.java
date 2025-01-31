@@ -22,7 +22,7 @@ public class UserRegisteredListener {
         this.mailSender = mailSender;
     }
 
-    @RabbitListener(queues = "${rabbitmq.queue.user}", errorHandler = "rabbitMQExceptionHandler")
+    @RabbitListener(queues = "${rabbitmq.queue.user}", errorHandler = "rabbitMqExceptionHandler")
     public void handleUserRegisteredEvent(UserDtoOutput user) {
         if (user == null || user.getEmail() == null) {
             logger.warning("Event received with invalid user data. Discarding event.");
@@ -48,7 +48,5 @@ public class UserRegisteredListener {
         helper.setText("<h1>Hi " + name + "!</h1><p>Thank you for registering :D. We are very happy to see you here.</p>", true);
 
         mailSender.send(message);
-
-        System.out.println("Email sent to: " + email);
     }
 }

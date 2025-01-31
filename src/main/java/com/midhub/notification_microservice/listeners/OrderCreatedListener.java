@@ -29,7 +29,7 @@ public class OrderCreatedListener {
     @Autowired
     private UserServiceClient userServiceClient;
 
-    @RabbitListener(queues = "${rabbitmq.queue.order}", errorHandler = "rabbitMQExceptionHandler")
+    @RabbitListener(queues = "${rabbitmq.queue.order}", errorHandler = "rabbitMqExceptionHandler")
     public void handleOrderCreatedEvent(OrderDtoOutput order) {
         logger.info("Order received: " + order.getId());
         logger.info("Searching email's user with ID: " + order.getUserId());

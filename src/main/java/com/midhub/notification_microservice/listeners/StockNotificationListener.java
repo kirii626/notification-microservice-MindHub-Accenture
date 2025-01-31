@@ -17,7 +17,7 @@ public class StockNotificationListener {
     @Autowired
     private EmailService emailService;
 
-    @RabbitListener(queues = "${rabbitmq.queue.stock.notification}", errorHandler = "rabbitMQExceptionHandler")
+    @RabbitListener(queues = "${rabbitmq.queue.stock.notification}", errorHandler = "rabbitMqExceptionHandler")
     public void handleStockNotification(StockReducedEmailEvent event) {
         logger.info("Received stock reduction event: " + event.getProductName() + " - New Stock: " + event.getNewStock());
 
