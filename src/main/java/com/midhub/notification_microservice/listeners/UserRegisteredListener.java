@@ -8,8 +8,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 @Service
 public class UserRegisteredListener {
+
+    private static final Logger logger = Logger.getLogger(UserRegisteredListener.class.getName());
 
     private final JavaMailSender mailSender;
 
@@ -17,19 +22,20 @@ public class UserRegisteredListener {
         this.mailSender = mailSender;
     }
 
-    @RabbitListener(queues = "${rabbitmq.queue.user}")
+    @RabbitListener(queues = "${rabbitmq.queue.user}", errorHandler = "rabbitMQExceptionHandler")
     public void handleUserRegisteredEvent(UserDtoOutput user) {
         if (user == null || user.getEmail() == null) {
-            System.out.println("Event received with invalid data, discarded");
+            logger.warning("Event received with invalid user data. Discarding event.");
             return;
         }
 
-        System.out.println("User's registered event received: " + user.getEmail());
+        logger.info("User registration event received: " + user.getEmail());
 
         try {
             sendWelcomeEmail(user.getEmail(), user.getUsername());
+            logger.info("Welcome email successfully sent to: " + user.getEmail());
         } catch (MessagingException e) {
-            System.err.println("ERROR sending email" + e.getMessage());
+            logger.log(Level.SEVERE, "ERROR sending welcome email to " + user.getEmail() + ": " + e.getMessage(), e);
         }
     }
 

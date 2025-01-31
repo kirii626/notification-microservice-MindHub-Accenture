@@ -1,5 +1,6 @@
 package com.midhub.notification_microservice.services.implementations;
 
+import com.midhub.notification_microservice.exceptions.EmailSendingException;
 import com.midhub.notification_microservice.services.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -11,9 +12,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class EmailServiceImpl implements EmailService {
+
+    private static final Logger logger = Logger.getLogger(EmailServiceImpl.class.getName());
+
 
     @Value("${email.admins}")
     private List<String> adminEmails;
@@ -35,8 +41,7 @@ public class EmailServiceImpl implements EmailService {
         helper.addAttachment("order.pdf", () -> new ByteArrayInputStream(pdfContent));
 
         mailSender.send(message);
-        System.out.println("Email sent to: " + email);
-
+        logger.info("Order email successfully sent to: " + email);
     }
 
     @Override
@@ -50,9 +55,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setText(message);
 
             mailSender.send(mail);
-            System.out.println("✅ Email enviado a los administradores.");
-        } catch (Exception e) {
-            System.err.println("❌ Error enviando email: " + e.getMessage());
+            logger.info("Admin notification email sent successfully.");
+        } catch (MessagingException e) {
+            logger.log(Level.SEVERE, "ERROR sending admin notification email", e);
+            throw new EmailSendingException("Failed to send admin notification email", e);
         }
     }
 }
