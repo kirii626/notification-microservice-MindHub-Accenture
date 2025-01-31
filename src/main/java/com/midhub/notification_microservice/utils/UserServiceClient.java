@@ -12,11 +12,11 @@ public class UserServiceClient {
     private RestTemplate restTemplate;
 
     public String getUserEmail(Long userId) {
-        String url = "http://user-microservice/users/" + userId + "/email"; // 👈 Ajusta el puerto si es necesario
+        String url = "http://user-microservice/internal/user/" + userId + "/email";
         try {
             return restTemplate.getForObject(url, String.class);
         } catch (Exception e) {
-            System.err.println("❌ ERROR: Can't obtain email from user-microservice: " + e.getMessage());
+            System.err.println("ERROR: Can't obtain email from user-microservice: " + e.getMessage());
             return null;
         }
     }

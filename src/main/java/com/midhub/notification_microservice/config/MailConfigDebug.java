@@ -15,7 +15,7 @@ public class MailConfigDebug {
 
     @PostConstruct
     public void debugMailConfig() {
-        System.out.println("📩 Email configurado: " + username);
-        System.out.println("🔑 Contraseña (oculta): " + (password != null && !password.isEmpty() ? "OK" : "FALTA"));
+        System.out.println("Email configurado: " + username);
+        System.out.println("Contraseña (oculta): " + (password != null && !password.isEmpty() ? "OK" : "FALTA"));
     }
 }

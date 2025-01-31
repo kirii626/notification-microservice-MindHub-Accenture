@@ -14,29 +14,66 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfig {
 
+    @Value("{rabbitmq.exchange}")
+    private String exchange;
+
+    @Value("${rabbitmq.routingkey.user}")
+    private String userRegisteredRoutingKey;
+
+    @Value("${rabbitmq.queue.user}")
+    private String userQueue;
+
+    @Value("${rabbitmq.routingkey.order}")
+    private String orderCreatedRoutingKey;
+
+    @Value("${rabbitmq.queue.order}")
+    private String orderQueue;
+
+    @Value("${rabbitmq.queue.stock.notification}")
+    private String stockNotificationQueue;
+
+    @Value("${rabbitmq.routing.stock.reduced}")
+    private String stockReducedRoutingKey;
+
     @Bean
     public TopicExchange topicExchange() {
-        return new TopicExchange("notification.exchange");
+        return new TopicExchange(exchange);
     }
 
     @Bean
     public Queue userQueue() {
-        return new Queue("notification.user.queue");
+        return new Queue(userQueue);
     }
 
     @Bean
     public Queue orderQueue() {
-        return new Queue("notification.order.queue");
+        return new Queue(orderQueue);
+    }
+
+    @Bean
+    public Queue stockNotificationQueue() {
+        return new Queue(stockNotificationQueue, true);
+    }
+
+    @Bean
+    public Binding bindingStockNotification(Queue stockNotificationQueue, TopicExchange stockExchange) {
+        return BindingBuilder.bind(stockNotificationQueue).to(stockExchange).with(stockReducedRoutingKey);
     }
 
     @Bean
     public Binding bindingUserQueue(Queue userQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(userQueue).to(topicExchange).with("notification.user.registered");
+        return BindingBuilder
+                .bind(userQueue)
+                .to(topicExchange)
+                .with(userRegisteredRoutingKey);
     }
 
     @Bean
     public Binding bindingOrderQueue(Queue orderQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(orderQueue).to(topicExchange).with("notification.order.created");
+        return BindingBuilder
+                .bind(orderQueue)
+                .to(topicExchange)
+                .with(orderCreatedRoutingKey);
     }
 
     @Bean

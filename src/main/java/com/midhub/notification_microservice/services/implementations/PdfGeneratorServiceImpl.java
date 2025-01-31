@@ -38,12 +38,9 @@ public class PdfGeneratorServiceImpl implements PdfGeneratorService {
                 .setMarginBottom(20);
         document.add(title);
 
-        Table table = new Table(UnitValue.createPercentArray(new float[]{1, 1, 1, 2, 1, 1, 1}))
+        Table table = new Table(UnitValue.createPercentArray(new float[]{2, 1, 1, 1}))
                 .useAllAvailableWidth();
 
-        table.addHeaderCell(new Cell().add(new Paragraph("Item ID").setFont(boldFont)));
-        table.addHeaderCell(new Cell().add(new Paragraph("Order ID").setFont(boldFont)));
-        table.addHeaderCell(new Cell().add(new Paragraph("Product ID").setFont(boldFont)));
         table.addHeaderCell(new Cell().add(new Paragraph("Product Name").setFont(boldFont)));
         table.addHeaderCell(new Cell().add(new Paragraph("Quantity").setFont(boldFont)));
         table.addHeaderCell(new Cell().add(new Paragraph("Unit Price").setFont(boldFont)));
@@ -54,9 +51,6 @@ public class PdfGeneratorServiceImpl implements PdfGeneratorService {
             double subtotal = item.getQuantity() * item.getPrice();
             total += subtotal;
 
-            table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getId())).setFont(normalFont)));
-            table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getOrderId())).setFont(normalFont)));
-            table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getProductId())).setFont(normalFont)));
             table.addCell(new Cell().add(new Paragraph(item.getName()).setFont(normalFont)));
             table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getQuantity())).setFont(normalFont)));
             table.addCell(new Cell().add(new Paragraph(currencyFormat.format(item.getPrice())).setFont(normalFont)));
